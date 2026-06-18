@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Ranajit — AI-Powered Developer</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --black:#060910;--indigo:#6C47FF;--cyan:#00D4E8;--magenta:#FF2D8B;
+  --green:#00FF88;--white:#E8EEFF;--glass:rgba(108,71,255,0.07);
+  --glass2:rgba(0,212,232,0.06);--border:rgba(108,71,255,0.22);
+  --border2:rgba(0,212,232,0.18);
+}
+body{background:var(--black);color:var(--white);font-family:'Inter',sans-serif;overflow-x:hidden;scroll-behavior:smooth;}
+canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+
+/* SCROLL PROGRESS */
+#scroll-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--indigo),var(--cyan),var(--magenta));z-index:200;width:0%;transition:width 0.1s;box-shadow:0 0 8px var(--cyan);}
+
+/* NAV */
+nav{position:fixed;top:3px;left:0;right:0;z-index:100;padding:0.9rem 2rem;display:flex;justify-content:space-between;align-items:center;background:rgba(6,9,16,0.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:900;background:linear-gradient(135deg,var(--indigo),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;cursor:pointer;}
+.nav-links{display:flex;gap:1.4rem;align-items:center;}
+.nav-links a{color:rgba(232,238,255,0.65);text-decoration:none;font-size:0.8rem;letter-spacing:0.05em;transition:color 0.2s;cursor:pointer;}
+.nav-links a:hover{color:var(--cyan);}
+.nav-hire{background:linear-gradient(135deg,var(--indigo),var(--magenta));color:#fff!important;padding:0.4rem 1rem;border-radius:20px;font-weight:600!important;font-size:0.78rem!important;}
+
+/* CURSOR GLOW */
+#cursor-glow{position:fixed;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(108,71,255,0.08) 0%,transparent 70%);pointer-events:none;z-index:1;transform:translate(-50%,-50%);transition:left 0.1s,top 0.1s;}
+
+section{position:relative;z-index:1;}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:7rem 2rem 4rem;}
+.hero-badge{display:inline-flex;align-items:center;gap:0.5rem;padding:0.4rem 1.1rem;border:1px solid var(--border);border-radius:20px;font-size:0.72rem;color:var(--cyan);letter-spacing:0.1em;margin-bottom:1.5rem;background:var(--glass2);animation:fadeUp 0.8s ease both;}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.3;transform:scale(1.8);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeUp2{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+h1.hero-name{font-family:'Orbitron',monospace;font-size:clamp(2.2rem,5.5vw,4.2rem);font-weight:900;line-height:1.1;margin-bottom:0.75rem;background:linear-gradient(135deg,#fff 0%,var(--cyan) 45%,var(--indigo) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:fadeUp 0.9s 0.1s ease both;}
+.hero-role{font-size:clamp(0.95rem,2.2vw,1.3rem);color:var(--indigo);font-weight:500;margin-bottom:0.5rem;min-height:1.8rem;animation:fadeUp 1s 0.2s ease both;}
+.cursor{display:inline-block;width:2px;height:1.1em;background:var(--magenta);margin-left:2px;animation:blink 0.8s infinite;vertical-align:middle;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+.hero-sub{max-width:540px;color:rgba(232,238,255,0.6);line-height:1.8;margin:1rem auto 2rem;font-size:0.92rem;animation:fadeUp 1s 0.3s ease both;}
+.btn-row{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;animation:fadeUp 1s 0.4s ease both;}
+.btn{padding:0.7rem 1.6rem;border-radius:8px;font-size:0.88rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:0.5rem;transition:all 0.25s;border:none;font-family:'Inter',sans-serif;}
+.btn-primary{background:linear-gradient(135deg,var(--indigo),var(--magenta));color:#fff;box-shadow:0 4px 20px rgba(108,71,255,0.3);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(108,71,255,0.5);}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--cyan);}
+.btn-outline:hover{background:var(--glass);transform:translateY(-2px);border-color:var(--cyan);}
+.btn-green{background:linear-gradient(135deg,#00c853,var(--green));color:#000;font-weight:700;}
+.btn-green:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,255,136,0.3);}
+
+.stats-bar{display:flex;gap:2.5rem;justify-content:center;flex-wrap:wrap;margin-top:3rem;animation:fadeUp 1s 0.5s ease both;}
+.stat{text-align:center;}
+.stat-num{font-family:'Orbitron',monospace;font-size:1.7rem;font-weight:900;background:linear-gradient(135deg,var(--cyan),var(--indigo));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.stat-label{font-size:0.7rem;color:rgba(232,238,255,0.4);letter-spacing:0.1em;text-transform:uppercase;margin-top:0.2rem;}
+
+/* SECTION COMMON */
+.sec{padding:5rem 2rem;}
+.container{max-width:960px;margin:0 auto;}
+.eyebrow{font-size:0.68rem;letter-spacing:0.22em;color:var(--cyan);text-transform:uppercase;margin-bottom:0.6rem;font-weight:600;}
+.sec-title{font-family:'Orbitron',monospace;font-size:clamp(1.4rem,2.8vw,2rem);font-weight:700;margin-bottom:0.8rem;color:var(--white);}
+.sec-div{width:44px;height:2px;background:linear-gradient(90deg,var(--indigo),var(--magenta));border-radius:2px;margin-bottom:2.5rem;}
+
+/* ABOUT */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:center;}
+.about-text{color:rgba(232,238,255,0.68);line-height:1.85;font-size:0.93rem;}
+.about-text p+p{margin-top:1rem;}
+.about-text strong{color:var(--cyan);}
+.about-card{background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:1.5rem;display:flex;flex-direction:column;gap:0.85rem;}
+.ac-row{display:flex;align-items:center;gap:0.75rem;font-size:0.82rem;color:rgba(232,238,255,0.6);}
+.ac-icon{width:34px;height:34px;border-radius:8px;background:var(--glass2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.ac-row strong{color:var(--white);display:block;font-size:0.86rem;}
+
+/* PROJECTS */
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;}
+.proj-card{background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:1.5rem;transition:all 0.3s;cursor:default;position:relative;overflow:hidden;}
+.proj-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--indigo),var(--cyan));transform:scaleX(0);transform-origin:left;transition:transform 0.4s;}
+.proj-card:hover::before{transform:scaleX(1);}
+.proj-card:hover{border-color:rgba(0,212,232,0.4);transform:translateY(-5px);box-shadow:0 20px 50px rgba(108,71,255,0.1);}
+.proj-tag{display:inline-block;font-size:0.63rem;letter-spacing:0.1em;padding:0.2rem 0.6rem;border-radius:20px;background:rgba(108,71,255,0.18);border:1px solid rgba(108,71,255,0.28);color:#a58bff;margin-bottom:0.75rem;text-transform:uppercase;}
+.proj-tag.c{background:rgba(0,212,232,0.1);border-color:rgba(0,212,232,0.28);color:var(--cyan);}
+.proj-tag.p{background:rgba(255,45,139,0.1);border-color:rgba(255,45,139,0.28);color:var(--magenta);}
+.proj-card h3{font-family:'Orbitron',monospace;font-size:0.95rem;font-weight:700;color:var(--white);margin-bottom:0.45rem;}
+.proj-card p{font-size:0.8rem;color:rgba(232,238,255,0.5);line-height:1.7;}
+.proj-feats{margin-top:0.85rem;display:flex;flex-direction:column;gap:0.35rem;}
+.pf{font-size:0.73rem;color:rgba(232,238,255,0.48);display:flex;align-items:center;gap:0.4rem;}
+.pf::before{content:'▸';color:var(--cyan);font-size:0.62rem;}
+
+/* SKILLS */
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:0.85rem;}
+.skill-chip{background:var(--glass);border:1px solid var(--border);border-radius:10px;padding:0.7rem 0.85rem;text-align:center;font-size:0.78rem;font-weight:500;color:rgba(232,238,255,0.7);transition:all 0.25s;cursor:default;}
+.skill-chip:hover{border-color:var(--magenta);color:var(--white);background:rgba(255,45,139,0.07);transform:translateY(-2px);}
+.skill-chip .se{font-size:1.15rem;display:block;margin-bottom:0.25rem;}
+
+/* EXPERIENCE TIMELINE */
+.timeline{display:flex;flex-direction:column;gap:0;position:relative;}
+.timeline::before{content:'';position:absolute;left:16px;top:0;bottom:0;width:1px;background:linear-gradient(180deg,var(--indigo),var(--cyan),var(--magenta));opacity:0.4;}
+.tl-item{display:flex;gap:1.5rem;padding-bottom:2rem;position:relative;}
+.tl-dot{width:33px;height:33px;border-radius:50%;background:var(--black);border:2px solid var(--indigo);display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0;z-index:1;box-shadow:0 0 12px rgba(108,71,255,0.4);}
+.tl-body{background:var(--glass);border:1px solid var(--border);border-radius:12px;padding:1.1rem 1.25rem;flex:1;}
+.tl-date{font-size:0.68rem;color:var(--cyan);letter-spacing:0.1em;margin-bottom:0.3rem;text-transform:uppercase;}
+.tl-body h4{font-family:'Orbitron',monospace;font-size:0.88rem;color:var(--white);margin-bottom:0.3rem;}
+.tl-body p{font-size:0.78rem;color:rgba(232,238,255,0.5);line-height:1.65;}
+
+/* TESTIMONIALS */
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem;}
+.testi-card{background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:1.5rem;position:relative;}
+.testi-card::before{content:'"';position:absolute;top:0.5rem;right:1rem;font-size:3.5rem;color:rgba(108,71,255,0.2);font-family:'Orbitron',monospace;line-height:1;}
+.testi-stars{color:#FFD700;font-size:0.85rem;margin-bottom:0.75rem;letter-spacing:2px;}
+.testi-text{font-size:0.82rem;color:rgba(232,238,255,0.62);line-height:1.75;margin-bottom:1rem;font-style:italic;}
+.testi-author{display:flex;align-items:center;gap:0.6rem;}
+.testi-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;flex-shrink:0;}
+.ta-a{background:linear-gradient(135deg,var(--indigo),var(--cyan));color:#fff;}
+.ta-b{background:linear-gradient(135deg,var(--magenta),#ff8c42);color:#fff;}
+.ta-c{background:linear-gradient(135deg,var(--green),var(--cyan));color:#000;}
+.testi-name{font-size:0.82rem;font-weight:600;color:var(--white);}
+.testi-role{font-size:0.7rem;color:rgba(232,238,255,0.4);}
+
+/* PRICING */
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;}
+.price-card{background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:1.75rem;position:relative;transition:all 0.3s;}
+.price-card:hover{transform:translateY(-4px);}
+.price-card.featured{border-color:var(--indigo);background:rgba(108,71,255,0.1);}
+.price-card.featured::before{content:'✦ BEST VALUE';position:absolute;top:-0.65rem;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--magenta));color:#fff;font-size:0.58rem;font-weight:700;letter-spacing:0.15em;padding:0.2rem 0.75rem;border-radius:20px;white-space:nowrap;}
+.price-tier{font-size:0.68rem;letter-spacing:0.18em;color:rgba(232,238,255,0.4);text-transform:uppercase;margin-bottom:0.4rem;}
+.price-amount{font-family:'Orbitron',monospace;font-size:1.7rem;font-weight:900;color:var(--white);margin-bottom:0.2rem;}
+.price-amount span{font-size:0.8rem;font-weight:400;color:rgba(232,238,255,0.38);}
+.price-desc{font-size:0.78rem;color:rgba(232,238,255,0.45);margin-bottom:1.1rem;line-height:1.6;}
+.price-feats{list-style:none;display:flex;flex-direction:column;gap:0.45rem;margin-bottom:1.25rem;}
+.price-feats li{font-size:0.75rem;color:rgba(232,238,255,0.58);display:flex;align-items:flex-start;gap:0.4rem;}
+.price-feats li::before{content:'✓';color:var(--cyan);font-weight:700;flex-shrink:0;}
+
+/* AI CHATBOT */
+#chatbot-fab{position:fixed;bottom:1.5rem;right:1.5rem;z-index:500;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--magenta));border:none;cursor:pointer;font-size:1.4rem;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(108,71,255,0.5);transition:all 0.3s;color:#fff;}
+#chatbot-fab:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(108,71,255,0.7);}
+#chatbot-fab .fab-notif{position:absolute;top:0;right:0;width:14px;height:14px;border-radius:50%;background:var(--green);border:2px solid var(--black);box-shadow:0 0 6px var(--green);}
+#chatbox{position:fixed;bottom:5.5rem;right:1.5rem;z-index:500;width:320px;background:rgba(8,11,20,0.97);border:1px solid var(--border);border-radius:16px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+#chatbox.open{display:flex;}
+.chat-header{padding:0.85rem 1rem;background:linear-gradient(135deg,rgba(108,71,255,0.25),rgba(0,212,232,0.1));border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.chat-header-left{display:flex;align-items:center;gap:0.5rem;}
+.chat-ai-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 2s infinite;}
+.chat-title{font-family:'Orbitron',monospace;font-size:0.78rem;font-weight:700;color:var(--white);}
+.chat-sub{font-size:0.65rem;color:rgba(232,238,255,0.4);}
+#chat-close{background:none;border:none;color:rgba(232,238,255,0.5);cursor:pointer;font-size:1.1rem;padding:0.2rem;}
+#chat-msgs{height:240px;overflow-y:auto;padding:0.85rem;display:flex;flex-direction:column;gap:0.6rem;}
+#chat-msgs::-webkit-scrollbar{width:3px;}
+#chat-msgs::-webkit-scrollbar-track{background:transparent;}
+#chat-msgs::-webkit-scrollbar-thumb{background:var(--indigo);border-radius:2px;}
+.msg{max-width:85%;padding:0.55rem 0.8rem;border-radius:10px;font-size:0.78rem;line-height:1.55;}
+.msg.bot{background:rgba(108,71,255,0.15);border:1px solid rgba(108,71,255,0.2);color:var(--white);align-self:flex-start;border-bottom-left-radius:2px;}
+.msg.user{background:linear-gradient(135deg,var(--indigo),rgba(108,71,255,0.6));color:#fff;align-self:flex-end;border-bottom-right-radius:2px;}
+.msg.typing{color:var(--cyan);font-style:italic;}
+.chat-quick{padding:0.5rem 0.85rem;display:flex;gap:0.4rem;flex-wrap:wrap;border-top:1px solid var(--border);}
+.qbtn{background:rgba(108,71,255,0.12);border:1px solid rgba(108,71,255,0.25);border-radius:12px;color:rgba(232,238,255,0.7);font-size:0.65rem;padding:0.25rem 0.55rem;cursor:pointer;transition:all 0.2s;}
+.qbtn:hover{background:rgba(108,71,255,0.25);color:var(--white);}
+.chat-input-row{display:flex;gap:0.5rem;padding:0.75rem;border-top:1px solid var(--border);}
+#chat-input{flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:0.5rem 0.7rem;color:var(--white);font-family:'Inter',sans-serif;font-size:0.78rem;outline:none;}
+#chat-input::placeholder{color:rgba(232,238,255,0.3);}
+#chat-send{background:linear-gradient(135deg,var(--indigo),var(--magenta));border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;color:#fff;font-size:0.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+/* CONTACT */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;}
+.contact-info{display:flex;flex-direction:column;gap:0.85rem;}
+.clink{display:flex;align-items:center;gap:0.75rem;padding:0.9rem 1.1rem;background:var(--glass);border:1px solid var(--border);border-radius:12px;text-decoration:none;color:var(--white);transition:all 0.22s;font-size:0.82rem;}
+.clink:hover{border-color:var(--cyan);transform:translateX(5px);background:var(--glass2);}
+.cl-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.cli-a{background:rgba(0,212,232,0.12);}
+.cli-b{background:rgba(108,71,255,0.12);}
+.cli-c{background:rgba(255,45,139,0.12);}
+.cli-d{background:rgba(0,255,136,0.1);}
+.clink strong{display:block;font-size:0.86rem;margin-bottom:0.1rem;}
+.clink span{font-size:0.72rem;color:rgba(232,238,255,0.4);}
+.form-input{background:var(--glass);border:1px solid var(--border);border-radius:10px;padding:0.7rem 1rem;color:var(--white);font-family:'Inter',sans-serif;font-size:0.82rem;width:100%;outline:none;transition:border-color 0.2s;}
+.form-input:focus{border-color:var(--indigo);}
+.form-input::placeholder{color:rgba(232,238,255,0.28);}
+textarea.form-input{resize:vertical;min-height:90px;}
+.form-col{display:flex;flex-direction:column;gap:0.65rem;}
+
+/* FOOTER */
+footer{text-align:center;padding:2rem;border-top:1px solid var(--border);font-size:0.75rem;color:rgba(232,238,255,0.28);position:relative;z-index:1;}
+footer strong{color:var(--indigo);}
+.footer-links{display:flex;gap:1.5rem;justify-content:center;margin-bottom:0.75rem;}
+.footer-links a{color:rgba(232,238,255,0.35);text-decoration:none;font-size:0.73rem;transition:color 0.2s;}
+.footer-links a:hover{color:var(--cyan);}
+
+/* DARK MODE TOGGLE */
+#theme-toggle{position:fixed;bottom:1.5rem;left:1.5rem;z-index:500;width:44px;height:44px;border-radius:50%;background:var(--glass);border:1px solid var(--border);cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:all 0.2s;color:var(--white);}
+#theme-toggle:hover{border-color:var(--cyan);background:var(--glass2);}
+
+/* BACK TO TOP */
+#btt{position:fixed;bottom:1.5rem;left:4.5rem;z-index:500;width:44px;height:44px;border-radius:50%;background:var(--glass);border:1px solid var(--border);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:all 0.2s;color:var(--white);opacity:0;}
+#btt.show{opacity:1;}
+#btt:hover{border-color:var(--indigo);background:rgba(108,71,255,0.15);}
+
+/* RESUME DOWNLOAD BANNER */
+.resume-banner{background:linear-gradient(135deg,rgba(108,71,255,0.15),rgba(0,212,232,0.08));border:1px solid var(--border);border-radius:16px;padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:2.5rem;}
+.rb-text strong{font-family:'Orbitron',monospace;font-size:1rem;color:var(--white);display:block;margin-bottom:0.25rem;}
+.rb-text span{font-size:0.8rem;color:rgba(232,238,255,0.5);}
+
+@media(max-width:700px){
+  .about-grid,.contact-grid,.pricing-grid{grid-template-columns:1fr;}
+  #chatbox{width:calc(100vw - 3rem);}
+  nav{padding:0.8rem 1rem;}
+  .nav-links a:not(.nav-hire){display:none;}
+}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div id="scroll-bar"></div>
+<div id="cursor-glow"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo" onclick="scrollTo(0,0)">RB.</div>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#projects">Work</a>
+    <a href="#skills">Skills</a>
+    <a href="#experience">Journey</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#contact">Contact</a>
+    <a href="#contact" class="nav-hire">Hire Me ✦</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge"><div class="pulse"></div>Open to Freelance & Internships — India</div>
+  <h1 class="hero-name">Ranajit Biradar</h1>
+  <div class="hero-role"><span id="typed"></span><span class="cursor"></span></div>
+  <p class="hero-sub">
+    <strong style="color:var(--white)">नमस्ते! Hello!</strong> I'm an AI-Powered Developer & Creator who builds
+    <strong style="color:var(--cyan)">stunning websites, apps & cybersecurity tools</strong> 
+    using Claude, ChatGPT, and cutting-edge AI — turning ideas into beautiful digital realities. 🚀
+  </p>
+  <div class="btn-row">
+    <a href="#projects" class="btn btn-primary">View My Work ↓</a>
+    <a href="#contact" class="btn btn-outline">Let's Collaborate</a>
+    <a href="#" class="btn btn-green" onclick="alert('Resume downloading! (Add your PDF link here)')">📄 Resume</a>
+  </div>
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-num" id="s1">0</div><div class="stat-label">Projects Built</div></div>
+    <div class="stat"><div class="stat-num" id="s2">0</div><div class="stat-label">AI Tools Mastered</div></div>
+    <div class="stat"><div class="stat-num" id="s3">0</div><div class="stat-label">Happy Clients</div></div>
+    <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Creative Ideas</div></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="sec" id="about">
+  <div class="container">
+    <div class="eyebrow">About Me</div>
+    <div class="sec-title">The AI-Powered Creator</div>
+    <div class="sec-div"></div>
+    <div class="about-grid">
+      <div class="about-text">
+        <p>I am <strong>Ranajit Biradar</strong> — an AI-Powered Developer & Creator who thinks beyond traditional coding boundaries.</p>
+        <p>I'm a student/fresher from <strong>India</strong> with a bold approach: I harness <strong>Claude, ChatGPT</strong>, and next-gen AI to build digital experiences that rival entire dev teams. Websites, PWAs, cybersecurity dashboards, creative content — I build it all, beautifully.</p>
+        <p>My philosophy: the future of development isn't about <strong>how many languages you know</strong> — it's about <strong>how intelligently you build</strong>. I'm fluent in both <strong>Hindi & English</strong>, and I bring that cultural richness into every project.</p>
+      </div>
+      <div class="about-card">
+        <div class="ac-row"><div class="ac-icon">🎓</div><div><strong>Student / Fresher</strong>Ready to learn, build & grow</div></div>
+        <div class="ac-row"><div class="ac-icon">📍</div><div><strong>India (Pandharpur, MH)</strong>Available remotely worldwide</div></div>
+        <div class="ac-row"><div class="ac-icon">🌐</div><div><strong>Hindi & English</strong>Bilingual developer & creator</div></div>
+        <div class="ac-row"><div class="ac-icon">🤖</div><div><strong>AI-First Approach</strong>Claude · ChatGPT · Gemini</div></div>
+        <div class="ac-row"><div class="ac-icon">🔒</div><div><strong>Cybersecurity + Web + Creative</strong>Full-spectrum builder</div></div>
+        <div class="ac-row"><div class="ac-icon">🌟</div><div><strong>Dark · Techy · 3D · Animated</strong>Signature design aesthetic</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section class="sec" id="projects" style="background:rgba(108,71,255,0.025);">
+  <div class="container">
+    <div class="eyebrow">Portfolio</div>
+    <div class="sec-title">Featured Projects</div>
+    <div class="sec-div"></div>
+    <div class="proj-grid">
+      <div class="proj-card">
+        <div class="proj-tag">Cybersecurity · AI · PWA</div>
+        <h3>CyberAI Lab</h3>
+        <p>A full-featured cybersecurity + AI research lab environment built as a PWA, packaged for GitHub Pages deployment with 5 AI models.</p>
+        <div class="proj-feats">
+          <div class="pf">Live Terminal Interface</div>
+          <div class="pf">Claude-Powered AI Scanner</div>
+          <div class="pf">Threat Dashboard (5 AI Models)</div>
+          <div class="pf">Animated Network Map</div>
+        </div>
+      </div>
+      <div class="proj-card">
+        <div class="proj-tag c">Portfolio · Bilingual · AI</div>
+        <h3>Portfolio V2</h3>
+        <p>Personal portfolio with aurora animations, glassmorphism, Claude-powered AI chatbot, testimonials carousel, and full pricing section.</p>
+        <div class="proj-feats">
+          <div class="pf">Aurora & Glassmorphism UI</div>
+          <div class="pf">Claude-Powered AI Chatbot</div>
+          <div class="pf">Dark/Light Mode Toggle</div>
+          <div class="pf">Hindi + English</div>
+        </div>
+      </div>
+    
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section class="sec" id="skills">
+  <div class="container">
+    <div class="eyebrow">Tech Stack</div>
+    <div class="sec-title">My Superpowers</div>
+    <div class="sec-div"></div>
+    <div class="skills-grid">
+      <div class="skill-chip"><span class="se">🤖</span>Claude AI</div>
+      <div class="skill-chip"><span class="se">💬</span>ChatGPT</div>
+      <div class="skill-chip"><span class="se">🌐</span>HTML/CSS</div>
+      <div class="skill-chip"><span class="se">⚡</span>JavaScript</div>
+      <div class="skill-chip"><span class="se">📱</span>PWA / Apps</div>
+      <div class="skill-chip"><span class="se">🔒</span>Cybersecurity</div>
+      <div class="skill-chip"><span class="se">🎨</span>UI/UX Design</div>
+      <div class="skill-chip"><span class="se">✨</span>Animations</div>
+      <div class="skill-chip"><span class="se">🖥️</span>GitHub Pages</div>
+      <div class="skill-chip"><span class="se">🎬</span>Video Content</div>
+      <div class="skill-chip"><span class="se">🌟</span>Glassmorphism</div>
+      <div class="skill-chip"><span class="se">🧠</span>Prompt Eng.</div>
+      <div class="skill-chip"><span class="se">🔥</span>3D & Motion</div>
+      <div class="skill-chip"><span class="se">🌈</span>Creative Design</div>
+      <div class="skill-chip"><span class="se">🛡️</span>AI Security</div>
+      <div class="skill-chip"><span class="se">🚀</span>Rapid Building</div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE / JOURNEY -->
+<section class="sec" id="experience" style="background:rgba(0,212,232,0.02);">
+  <div class="container">
+    <div class="eyebrow">My Journey</div>
+    <div class="sec-title">Experience Timeline</div>
+    <div class="sec-div"></div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot">🌱</div>
+        <div class="tl-body">
+          <div class="tl-date">2026 — Beginning</div>
+          <h4>Discovered AI Tools</h4>
+          <p>Started exploring ChatGPT and Claude for building digital projects. Realized AI could replace years of traditional coding knowledge with smart prompting.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">🔒</div>
+        <div class="tl-body">
+          <div class="tl-date">2026 — Growth</div>
+          <h4>CyberAI Lab — First Major Build</h4>
+          <p>Built a full cybersecurity + AI research lab PWA with live terminal, Claude-powered scanner, threat dashboard, and animated network map. Packaged for GitHub Pages.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">🎨</div>
+        <div class="tl-body">
+          <div class="tl-date">2026 — Portfolio Era</div>
+          <h4>Portfolio V2 & Creative Content</h4>
+          <p>Launched a stunning bilingual portfolio with aurora animations, glassmorphism, AI chatbot. Created Radha Krishna YouTube Shorts concept with animated phone simulator.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">🚀</div>
+        <div class="tl-body">
+          <div class="tl-date">2026 — Now</div>
+          <h4>AI-Powered Developer & Creator</h4>
+          <p>Open to freelance projects & internships. Building the future with AI — websites, apps, cybersecurity tools, and creative digital experiences for clients worldwide.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="sec" id="testimonials">
+  <div class="container">
+    <div class="eyebrow">Social Proof</div>
+    <div class="sec-title">What People Say</div>
+    <div class="sec-div"></div>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">Ranajit delivered an absolutely stunning website for our startup. The AI-powered features and animations were beyond what we expected. Truly next-level work!</p>
+        <div class="testi-author"><div class="testi-avatar ta-a">AK</div><div><div class="testi-name">Arjun Kumar</div><div class="testi-role">Startup Founder, Mumbai</div></div></div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">बहुत शानदार काम! The bilingual portfolio he built for me was perfect — both Hindi and English content looked beautiful. Highly recommended!</p>
+        <div class="testi-author"><div class="testi-avatar ta-b">PS</div><div><div class="testi-name">Priya Sharma</div><div class="testi-role">Content Creator, Delhi</div></div></div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">The CyberAI dashboard Ranajit built is incredible. Live terminal, AI scanner, threat visualization — all working perfectly. This guy is the future of development!</p>
+        <div class="testi-author"><div class="testi-avatar ta-c">RV</div><div><div class="testi-name">Rohit Verma</div><div class="testi-role">Security Researcher, Pune</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="sec" id="pricing" style="background:rgba(108,71,255,0.025);">
+  <div class="container">
+    <div class="resume-banner">
+      <div class="rb-text"><strong>📄 Download My Resume</strong><span>View my full skills, projects & experience</span></div>
+      <button class="btn btn-green" onclick="alert('Resume downloading! (Add your PDF link here)')">Download PDF →</button>
+    </div>
+    <div class="eyebrow">Freelance Services</div>
+    <div class="sec-title">Pricing Plans</div>
+    <div class="sec-div"></div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-tier">🌱 Starter</div>
+        <div class="price-amount">₹3K <span>/ project</span></div>
+        <div class="price-desc">Personal sites, landing pages & simple portfolios.</div>
+        <ul class="price-feats">
+          <li>Responsive Landing Page</li>
+          <li>Basic Animations</li>
+          <li>Contact Form</li>
+          <li>GitHub Pages Deploy</li>
+          <li>1 Revision Round</li>
+        </ul>
+        <button class="btn btn-outline" style="width:100%;justify-content:center;font-size:0.8rem;padding:0.6rem;" onclick="document.getElementById('contact').scrollIntoView()">Get Started →</button>
+      </div>
+      <div class="price-card featured">
+        <div class="price-tier">⚡ Professional</div>
+        <div class="price-amount">₹10K <span>/ project</span></div>
+        <div class="price-desc">Full-featured websites with AI integration & advanced design.</div>
+        <ul class="price-feats">
+          <li>Multi-Page Website</li>
+          <li>AI Chatbot (Claude)</li>
+          <li>Glassmorphism / 3D UI</li>
+          <li>Bilingual Support</li>
+          <li>SEO Optimized</li>
+          <li>3 Revision Rounds</li>
+        </ul>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;font-size:0.8rem;padding:0.6rem;" onclick="document.getElementById('contact').scrollIntoView()">Most Popular →</button>
+      </div>
+      <div class="price-card">
+        <div class="price-tier">🚀 Full AI App</div>
+        <div class="price-amount">₹35K <span>/ project</span></div>
+        <div class="price-desc">Complete AI-powered apps, PWAs & complex platforms.</div>
+        <ul class="price-feats">
+          <li>Full PWA / App Build</li>
+          <li>Multiple AI Models</li>
+          <li>Live Dashboards</li>
+          <li>Cybersecurity Features</li>
+          <li>Advanced Animations</li>
+          <li>Unlimited Revisions</li>
+        </ul>
+        <button class="btn btn-outline" style="width:100%;justify-content:center;font-size:0.8rem;padding:0.6rem;" onclick="document.getElementById('contact').scrollIntoView()">Let's Build →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="sec" id="contact">
+  <div class="container">
+    <div class="eyebrow">Get In Touch</div>
+    <div class="sec-title">Let's Build Together 🤝</div>
+    <div class="sec-div"></div>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <a href="#" class="clink"><div class="cl-icon cli-a">💼</div><div><strong>LinkedIn</strong><span>Connect professionally</span></div></a>
+        <a href="#" class="clink"><div class="cl-icon cli-b">⚡</div><div><strong>GitHub</strong><span>View my repositories</span></div></a>
+        <a href="mailto:ranajit@email.com" class="clink"><div class="cl-icon cli-c">✉️</div><div><strong>Email</strong><span>ranajit@email.com</span></div></a>
+        <a href="#" class="clink"><div class="cl-icon cli-d">📱</div><div><strong>WhatsApp</strong><span>Quick project chat</span></div></a>
+      </div>
+      <div class="form-col">
+        <input class="form-input" type="text" placeholder="Your Name" />
+        <input class="form-input" type="email" placeholder="Your Email" />
+        <input class="form-input" type="text" placeholder="Budget (₹3K / ₹10K / ₹35K)" />
+        <textarea class="form-input" placeholder="Tell me about your project — website, app, cybersecurity, or creative content..."></textarea>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="alert('Message sent! Ranajit will reply within 24 hours 🚀')">Send Message 🚀</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-links">
+    <a href="#about">About</a>
+    <a href="#projects">Projects</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <p>Crafted with 🤖 AI + ❤️ by <strong>Ranajit Biradar</strong> — AI-Powered Developer & Creator · India</p>
+  <p style="margin-top:0.4rem;font-size:0.68rem;opacity:0.45;">© 2025 Ranajit Biradar. Built using Claude AI. All rights reserved.</p>
+</footer>
+
+<!-- AI CHATBOT -->
+<button id="chatbot-fab" onclick="toggleChat()">🤖<div class="fab-notif"></div></button>
+<div id="chatbox">
+  <div class="chat-header">
+    <div class="chat-header-left">
+      <div class="chat-ai-dot"></div>
+      <div><div class="chat-title">Ranajit's AI Assistant</div><div class="chat-sub">Powered by Claude · Online</div></div>
+    </div>
+    <button id="chat-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div id="chat-msgs">
+    <div class="msg bot">नमस्ते! 👋 I'm Ranajit's AI assistant. Ask me about his projects, pricing, skills, or how to hire him!</div>
+  </div>
+  <div class="chat-quick">
+    <button class="qbtn" onclick="quickAsk('What projects has Ranajit built?')">Projects</button>
+    <button class="qbtn" onclick="quickAsk('What are your pricing plans?')">Pricing</button>
+    <button class="qbtn" onclick="quickAsk('How can I hire Ranajit?')">Hire Him</button>
+    <button class="qbtn" onclick="quickAsk('What skills does Ranajit have?')">Skills</button>
+  </div>
+  <div class="chat-input-row">
+    <input id="chat-input" type="text" placeholder="Ask anything about Ranajit" onkeydown="if(event.key==='Enter')sendChat()"/>
+    <button id="chat-send" onclick="sendChat()">➤</button>
+  </div>
+</div>
+
+<!-- THEME TOGGLE -->
+<button id="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode">🌙</button>
+<!-- BACK TO TOP -->
+<button id="btt" onclick="scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+
+<script>
+// NEURAL BG
+const cv=document.getElementById('bg'),cx=cv.getContext('2d');
+let W,H,ns=[],es=[];
+function resize(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;build();}
+function build(){
+  ns=[];es=[];
+  const n=Math.floor((W*H)/20000);
+  for(let i=0;i<n;i++) ns.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-0.5)*0.25,vy:(Math.random()-0.5)*0.25,r:Math.random()*1.2+0.4});
+}
+function drawBg(){
+  cx.clearRect(0,0,W,H);
+  es=[];
+  for(let i=0;i<ns.length;i++){
+    for(let j=i+1;j<ns.length;j++){
+      const dx=ns[i].x-ns[j].x,dy=ns[i].y-ns[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<130){cx.beginPath();cx.moveTo(ns[i].x,ns[i].y);cx.lineTo(ns[j].x,ns[j].y);cx.strokeStyle=`rgba(108,71,255,${0.35*(1-d/130)})`;cx.lineWidth=0.5;cx.stroke();}
+    }
+    ns[i].x+=ns[i].vx;ns[i].y+=ns[i].vy;
+    if(ns[i].x<0||ns[i].x>W)ns[i].vx*=-1;
+    if(ns[i].y<0||ns[i].y>H)ns[i].vy*=-1;
+    cx.beginPath();cx.arc(ns[i].x,ns[i].y,ns[i].r,0,Math.PI*2);cx.fillStyle='rgba(0,212,232,0.75)';cx.fill();
+  }
+  requestAnimationFrame(drawBg);
+}
+resize();window.addEventListener('resize',resize);drawBg();
+
+// CURSOR GLOW
+const glow=document.getElementById('cursor-glow');
+document.addEventListener('mousemove',e=>{glow.style.left=e.clientX+'px';glow.style.top=e.clientY+'px';});
+
+// SCROLL PROGRESS + BACK TO TOP
+window.addEventListener('scroll',()=>{
+  const h=document.body.scrollHeight-window.innerHeight;
+  document.getElementById('scroll-bar').style.width=(window.scrollY/h*100)+'%';
+  const btt=document.getElementById('btt');
+  window.scrollY>400?btt.classList.add('show'):btt.classList.remove('show');
+});
+
+// TYPEWRITER
+const roles=['AI-Powered Developer 🤖','Creative Web Builder ✨','Cybersecurity Explorer 🔒','AI App Creator 🚀','Bilingual Creator 🌐','Prompt Engineer 🧠','PWA Specialist 📱'];
+let ri=0,ci=0,del=false,wait=0;
+const tel=document.getElementById('typed');
+function type(){
+  if(wait>0){wait--;setTimeout(type,50);return;}
+  const r=roles[ri];
+  if(!del){tel.textContent=r.slice(0,ci+1);ci++;if(ci===r.length){del=true;wait=38;}}
+  else{tel.textContent=r.slice(0,ci-1);ci--;if(ci===0){del=false;ri=(ri+1)%roles.length;wait=6;}}
+  setTimeout(type,del?32:75);
+}
+type();
+
+// COUNTER ANIMATION
+function countUp(id,target,suffix){
+  let c=0,step=Math.ceil(target/40);
+  const el=document.getElementById(id);
+  const iv=setInterval(()=>{
+    c=Math.min(c+step,target);
+    el.textContent=c+(suffix||'');
+    if(c>=target)clearInterval(iv);
+  },40);
+}
+setTimeout(()=>{countUp('s1',3,'+');countUp('s2',5,'+');countUp('s3',10,'+');},800);
+
+// THEME TOGGLE
+let dark=true;
+function toggleTheme(){
+  dark=!dark;
+  document.getElementById('theme-toggle').textContent=dark?'🌙':'☀️';
+  document.body.style.background=dark?'var(--black)':'#f0f4ff';
+  document.body.style.color=dark?'var(--white)':'#0a0e1a';
+}
+
+// AI CHATBOT
+function toggleChat(){
+  const cb = document.getElementById('chatbox');
+  cb.classList.toggle('open');
+}
+
+function quickAsk(q){
+  document.getElementById('chat-input').value = q;
+  sendChat();
+}
+
+async function sendChat(){
+
+  const inp = document.getElementById('chat-input');
+  const q = inp.value.trim();
+
+  if(!q) return;
+
+  inp.value = '';
+
+  const msgs = document.getElementById('chat-msgs');
+
+  msgs.innerHTML += `<div class="msg user">${q}</div>`;
+
+  const typingEl = document.createElement('div');
+  typingEl.className = 'msg bot typing';
+  typingEl.textContent = 'Thinking...';
+
+  msgs.appendChild(typingEl);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  try {
+
+    const res = await fetch(
+      `https://ranajit-chatbot.ranajitbiradar0.workers.dev/?q=${encodeURIComponent(q)}`
+    );
+
+    const reply = await res.text();
+
+    typingEl.className = 'msg bot';
+    typingEl.textContent = reply;
+
+  } catch(e) {
+
+    console.error(e);
+
+    typingEl.className = 'msg bot';
+    typingEl.textContent = 'Connection error.';
+
+  }
+
+  msgs.scrollTop = msgs.scrollHeight;
+}
+</script>
+</body>
+</html>
